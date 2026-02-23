@@ -1,0 +1,8 @@
+facenet-pytorch
+torch
+torchvision
+rawpy
+Pillow
+scikit-learn
+imagehash
+numpy

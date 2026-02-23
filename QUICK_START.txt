@@ -1,0 +1,99 @@
+================================================================================
+PHOTO & VIDEO IMPORTER - QUICK START GUIDE
+================================================================================
+
+📁 FIRST TIME SETUP (Do this ONCE)
+================================================================================
+
+1. Double-click: index_library.bat
+   - Select your existing camera footage folder (e.g., E:\Camera Footage)
+   - Wait for indexing to complete
+   - This prevents re-importing existing files
+
+2. Install Pillow (optional but recommended):
+   - Open Command Prompt
+   - Run: pip install Pillow
+   - This enables accurate EXIF date detection
+
+
+📸 REGULAR IMPORTS (Every time you import from camera/SD card)
+================================================================================
+
+EASIEST METHOD:
+  - Double-click: run_importer.bat
+  - Select SOURCE (your SD card, e.g., D:\)
+  - Select DESTINATION (your library, e.g., E:\Camera Footage)
+  - Wait for import to complete!
+
+COMMAND LINE METHOD:
+  python import_media.py --dest "E:\Camera Footage"
+
+
+🔍 PREVIEW MODE (See what would be imported without copying)
+================================================================================
+
+  python import_media.py --source "D:\" --dest "E:\Camera Footage" --dry-run
+
+
+📂 FOLDER STRUCTURE
+================================================================================
+
+Your files will be organized like this:
+
+E:\Camera Footage\
+├── import_log.json          (Tracks all imports - don't delete!)
+├── 1-12-2025\               (January 12, 2025)
+│   ├── IMG_1234.JPG
+│   └── VID_5678.MOV
+├── 11-14-2025\              (November 14, 2025)
+│   └── DSC_9876.JPG
+└── 2-3-2024\                (February 3, 2024)
+    └── P1303000.RW2
+
+
+❓ COMMON QUESTIONS
+================================================================================
+
+Q: Can I delete import_log.json?
+A: No! This tracks what you've imported. If deleted, you may get duplicates.
+
+Q: What if files are skipped?
+A: They're already imported! This is normal and prevents duplicates.
+
+Q: Can I re-organize the date folders?
+A: Yes, but run --index-destination again after moving files.
+
+Q: What file formats are supported?
+A: Photos: JPG, PNG, RAW (CR2, NEF, ARW, RW2, DNG, etc.)
+   Videos: MP4, MOV, AVI, MKV, MTS, etc.
+
+
+🚀 PERFORMANCE TIPS
+================================================================================
+
+✓ Use USB 3.0 for faster transfers
+✓ Install Pillow for accurate dates
+✓ Keep import_log.json in your library
+✓ Don't interrupt imports (safe to cancel, but you'll need to restart)
+
+
+⚙️ ADVANCED COMMANDS
+================================================================================
+
+Full CLI import (no dialogs):
+  python import_media.py --source "D:\DCIM" --dest "E:\Camera Footage"
+
+Re-index after moving files:
+  python import_media.py --index-destination --dest "E:\Camera Footage"
+
+Preview specific folders:
+  python import_media.py --source "D:\DCIM" --dest "E:\Camera Footage" --dry-run
+
+
+📖 FULL DOCUMENTATION
+================================================================================
+
+See README.md for complete documentation, troubleshooting, and examples.
+
+
+================================================================================

@@ -1,0 +1,528 @@
+
+----------------------------------------------------------------------
+Scan complete!
+  Folders scanned: 24067
+  New files found: 40783
+  Total size: 807.05 GB
+  Already logged: 0 files (skipped)
+
+======================================================================
+Ready to add 40783 files to the import log.
+This will NOT copy or move any files.
+======================================================================
+
+Proceed with indexing? (yes/no): yes
+
+Indexing files...
+----------------------------------------------------------------------
+  Indexed 100/40783 files (10496 files/sec)
+  Indexed 200/40783 files (9976 files/sec)
+  Indexed 300/40783 files (9980 files/sec)
+  Indexed 400/40783 files (9619 files/sec)
+  Indexed 500/40783 files (9509 files/sec)
+  Indexed 600/40783 files (9508 files/sec)
+  Indexed 700/40783 files (9320 files/sec)
+  Indexed 800/40783 files (9290 files/sec)
+  Indexed 900/40783 files (9218 files/sec)
+  Indexed 1000/40783 files (9290 files/sec)
+  Indexed 1100/40783 files (9113 files/sec)
+  Indexed 1200/40783 files (9181 files/sec)
+  Indexed 1300/40783 files (9141 files/sec)
+  Indexed 1400/40783 files (9137 files/sec)
+  Indexed 1500/40783 files (9106 files/sec)
+  Indexed 1600/40783 files (9104 files/sec)
+  Indexed 1700/40783 files (9055 files/sec)
+  Indexed 1800/40783 files (8988 files/sec)
+  Indexed 1900/40783 files (9058 files/sec)
+  Indexed 2000/40783 files (9079 files/sec)
+  Indexed 2100/40783 files (9079 files/sec)
+  Indexed 2200/40783 files (9061 files/sec)
+  Indexed 2300/40783 files (9080 files/sec)
+  Indexed 2400/40783 files (9080 files/sec)
+  Indexed 2500/40783 files (9080 files/sec)
+  Indexed 2600/40783 files (9080 files/sec)
+  Indexed 2700/40783 files (9096 files/sec)
+  Indexed 2800/40783 files (9095 files/sec)
+  Indexed 2900/40783 files (9093 files/sec)
+  Indexed 3000/40783 files (9093 files/sec)
+  Indexed 3100/40783 files (9106 files/sec)
+  Indexed 3200/40783 files (9105 files/sec)
+  Indexed 3300/40783 files (9117 files/sec)
+  Indexed 3400/40783 files (9116 files/sec)
+  Indexed 3500/40783 files (9115 files/sec)
+  Indexed 3600/40783 files (9114 files/sec)
+  Indexed 3700/40783 files (9125 files/sec)
+  Indexed 3800/40783 files (9133 files/sec)
+  Indexed 3900/40783 files (9132 files/sec)
+  Indexed 4000/40783 files (9110 files/sec)
+  Indexed 4100/40783 files (9099 files/sec)
+  Indexed 4200/40783 files (9089 files/sec)
+  Indexed 4300/40783 files (9089 files/sec)
+  Indexed 4400/40783 files (9108 files/sec)
+  Indexed 4500/40783 files (9098 files/sec)
+  Indexed 4600/40783 files (9079 files/sec)
+  Indexed 4700/40783 files (9079 files/sec)
+  Indexed 4800/40783 files (9097 files/sec)
+  Indexed 4900/40783 files (9113 files/sec)
+  Indexed 5000/40783 files (9088 files/sec)
+  Indexed 5100/40783 files (9079 files/sec)
+  Indexed 5200/40783 files (9048 files/sec)
+  Indexed 5300/40783 files (9049 files/sec)
+  Indexed 5400/40783 files (9057 files/sec)
+  Indexed 5500/40783 files (9050 files/sec)
+  Indexed 5600/40783 files (9057 files/sec)
+  Indexed 5700/40783 files (9072 files/sec)
+  Indexed 5800/40783 files (9072 files/sec)
+  Indexed 5900/40783 files (9080 files/sec)
+  Indexed 6000/40783 files (9059 files/sec)
+  Indexed 6100/40783 files (9046 files/sec)
+  Indexed 6200/40783 files (9060 files/sec)
+  Indexed 6300/40783 files (9080 files/sec)
+  Indexed 6400/40783 files (9080 files/sec)
+  Indexed 6500/40783 files (9099 files/sec)
+  Indexed 6600/40783 files (9092 files/sec)
+  Indexed 6700/40783 files (9092 files/sec)
+  Indexed 6800/40783 files (9110 files/sec)
+  Indexed 6900/40783 files (9122 files/sec)
+  Indexed 7000/40783 files (9127 files/sec)
+  Indexed 7100/40783 files (9127 files/sec)
+  Indexed 7200/40783 files (9138 files/sec)
+  Indexed 7300/40783 files (9143 files/sec)
+  Indexed 7400/40783 files (9147 files/sec)
+  Indexed 7500/40783 files (9174 files/sec)
+  Indexed 7600/40783 files (9173 files/sec)
+  Indexed 7700/40783 files (9183 files/sec)
+  Indexed 7800/40783 files (9187 files/sec)
+  Indexed 7900/40783 files (9197 files/sec)
+  Indexed 8000/40783 files (9211 files/sec)
+  Indexed 8100/40783 files (9209 files/sec)
+  Indexed 8200/40783 files (9208 files/sec)
+  Indexed 8300/40783 files (9227 files/sec)
+  Indexed 8400/40783 files (9220 files/sec)
+  Indexed 8500/40783 files (9223 files/sec)
+  Indexed 8600/40783 files (9231 files/sec)
+  Indexed 8700/40783 files (9234 files/sec)
+  Indexed 8800/40783 files (9242 files/sec)
+  Indexed 8900/40783 files (9245 files/sec)
+  Indexed 9000/40783 files (9243 files/sec)
+  Indexed 9100/40783 files (9232 files/sec)
+  Indexed 9200/40783 files (9226 files/sec)
+  Indexed 9300/40783 files (9229 files/sec)
+  Indexed 9400/40783 files (9223 files/sec)
+  Indexed 9500/40783 files (9230 files/sec)
+  Indexed 9600/40783 files (9237 files/sec)
+  Indexed 9700/40783 files (9249 files/sec)
+  Indexed 9800/40783 files (9247 files/sec)
+  Indexed 9900/40783 files (9258 files/sec)
+  Indexed 10000/40783 files (9257 files/sec)
+  Indexed 10100/40783 files (9259 files/sec)
+  Indexed 10200/40783 files (9257 files/sec)
+  Indexed 10300/40783 files (9260 files/sec)
+  Indexed 10400/40783 files (9262 files/sec)
+  Indexed 10500/40783 files (9269 files/sec)
+  Indexed 10600/40783 files (9279 files/sec)
+  Indexed 10700/40783 files (9277 files/sec)
+  Indexed 10800/40783 files (9279 files/sec)
+  Indexed 10900/40783 files (9293 files/sec)
+  Indexed 11000/40783 files (9291 files/sec)
+  Indexed 11100/40783 files (9293 files/sec)
+  Indexed 11200/40783 files (9295 files/sec)
+  Indexed 11300/40783 files (9301 files/sec)
+  Indexed 11400/40783 files (9295 files/sec)
+  Indexed 11500/40783 files (9301 files/sec)
+  Indexed 11600/40783 files (9303 files/sec)
+  Indexed 11700/40783 files (9308 files/sec)
+  Indexed 11800/40783 files (9317 files/sec)
+  Indexed 11900/40783 files (9315 files/sec)
+  Indexed 12000/40783 files (9320 files/sec)
+  Indexed 12100/40783 files (9307 files/sec)
+  Indexed 12200/40783 files (9316 files/sec)
+  Indexed 12300/40783 files (9314 files/sec)
+  Indexed 12400/40783 files (9319 files/sec)
+  Indexed 12500/40783 files (9320 files/sec)
+  Indexed 12600/40783 files (9319 files/sec)
+  Indexed 12700/40783 files (9320 files/sec)
+  Indexed 12800/40783 files (9325 files/sec)
+  Indexed 12900/40783 files (9330 files/sec)
+  Indexed 13000/40783 files (9334 files/sec)
+  Indexed 13100/40783 files (9346 files/sec)
+  Indexed 13200/40783 files (9340 files/sec)
+  Indexed 13300/40783 files (9342 files/sec)
+  Indexed 13400/40783 files (9345 files/sec)
+  Indexed 13500/40783 files (9346 files/sec)
+  Indexed 13600/40783 files (9350 files/sec)
+  Indexed 13700/40783 files (9351 files/sec)
+  Indexed 13800/40783 files (9349 files/sec)
+  Indexed 13900/40783 files (9347 files/sec)
+  Indexed 14000/40783 files (9348 files/sec)
+  Indexed 14100/40783 files (9351 files/sec)
+  Indexed 14200/40783 files (9351 files/sec)
+  Indexed 14300/40783 files (9356 files/sec)
+  Indexed 14400/40783 files (9360 files/sec)
+  Indexed 14500/40783 files (9365 files/sec)
+  Indexed 14600/40783 files (9363 files/sec)
+  Indexed 14700/40783 files (9361 files/sec)
+  Indexed 14800/40783 files (9359 files/sec)
+  Indexed 14900/40783 files (9360 files/sec)
+  Indexed 15000/40783 files (9364 files/sec)
+  Indexed 15100/40783 files (9359 files/sec)
+  Indexed 15200/40783 files (9360 files/sec)
+  Indexed 15300/40783 files (9370 files/sec)
+  Indexed 15400/40783 files (9370 files/sec)
+  Indexed 15500/40783 files (9357 files/sec)
+  Indexed 15600/40783 files (9364 files/sec)
+  Indexed 15700/40783 files (9362 files/sec)
+  Indexed 15800/40783 files (9366 files/sec)
+  Indexed 15900/40783 files (9367 files/sec)
+  Indexed 16000/40783 files (9359 files/sec)
+  Indexed 16100/40783 files (9358 files/sec)
+  Indexed 16200/40783 files (9356 files/sec)
+  Indexed 16300/40783 files (9354 files/sec)
+  Indexed 16400/40783 files (9357 files/sec)
+  Indexed 16500/40783 files (9358 files/sec)
+  Indexed 16600/40783 files (9357 files/sec)
+  Indexed 16700/40783 files (9360 files/sec)
+  Indexed 16800/40783 files (9358 files/sec)
+  Indexed 16900/40783 files (9364 files/sec)
+  Indexed 17000/40783 files (9362 files/sec)
+  Indexed 17100/40783 files (9360 files/sec)
+  Indexed 17200/40783 files (9363 files/sec)
+  Indexed 17300/40783 files (9364 files/sec)
+  Indexed 17400/40783 files (9367 files/sec)
+  Indexed 17500/40783 files (9368 files/sec)
+  Indexed 17600/40783 files (9371 files/sec)
+  Indexed 17700/40783 files (9372 files/sec)
+  Indexed 17800/40783 files (9378 files/sec)
+  Indexed 17900/40783 files (9374 files/sec)
+  Indexed 18000/40783 files (9379 files/sec)
+  Indexed 18100/40783 files (9378 files/sec)
+  Indexed 18200/40783 files (9381 files/sec)
+  Indexed 18300/40783 files (9386 files/sec)
+  Indexed 18400/40783 files (9382 files/sec)
+  Indexed 18500/40783 files (9385 files/sec)
+  Indexed 18600/40783 files (9384 files/sec)
+  Indexed 18700/40783 files (9380 files/sec)
+  Indexed 18800/40783 files (9380 files/sec)
+  Indexed 18900/40783 files (9371 files/sec)
+  Indexed 19000/40783 files (9367 files/sec)
+  Indexed 19100/40783 files (9370 files/sec)
+  Indexed 19200/40783 files (9375 files/sec)
+  Indexed 19300/40783 files (9378 files/sec)
+  Indexed 19400/40783 files (9383 files/sec)
+  Indexed 19500/40783 files (9386 files/sec)
+  Indexed 19600/40783 files (9385 files/sec)
+  Indexed 19700/40783 files (9381 files/sec)
+  Indexed 19800/40783 files (9386 files/sec)
+  Indexed 19900/40783 files (9391 files/sec)
+  Indexed 20000/40783 files (9394 files/sec)
+  Indexed 20100/40783 files (9401 files/sec)
+  Indexed 20200/40783 files (9402 files/sec)
+  Indexed 20300/40783 files (9407 files/sec)
+  Indexed 20400/40783 files (9409 files/sec)
+  Indexed 20500/40783 files (9412 files/sec)
+  Indexed 20600/40783 files (9410 files/sec)
+  Indexed 20700/40783 files (9406 files/sec)
+  Indexed 20800/40783 files (9407 files/sec)
+  Indexed 20900/40783 files (9407 files/sec)
+  Indexed 21000/40783 files (9397 files/sec)
+  Indexed 21100/40783 files (9398 files/sec)
+  Indexed 21200/40783 files (9401 files/sec)
+  Indexed 21300/40783 files (9401 files/sec)
+  Indexed 21400/40783 files (9404 files/sec)
+  Indexed 21500/40783 files (9406 files/sec)
+  Indexed 21600/40783 files (9407 files/sec)
+  Indexed 21700/40783 files (9405 files/sec)
+  Indexed 21800/40783 files (9410 files/sec)
+  Indexed 21900/40783 files (9410 files/sec)
+  Indexed 22000/40783 files (9409 files/sec)
+  Indexed 22100/40783 files (9409 files/sec)
+  Indexed 22200/40783 files (9410 files/sec)
+  Indexed 22300/40783 files (9404 files/sec)
+  Indexed 22400/40783 files (9399 files/sec)
+  Indexed 22500/40783 files (9393 files/sec)
+  Indexed 22600/40783 files (9394 files/sec)
+  Indexed 22700/40783 files (9392 files/sec)
+  Indexed 22800/40783 files (9393 files/sec)
+  Indexed 22900/40783 files (9388 files/sec)
+  Indexed 23000/40783 files (9388 files/sec)
+  Indexed 23100/40783 files (9391 files/sec)
+  Indexed 23200/40783 files (9391 files/sec)
+  Indexed 23300/40783 files (9394 files/sec)
+  Indexed 23400/40783 files (9394 files/sec)
+  Indexed 23500/40783 files (9397 files/sec)
+  Indexed 23600/40783 files (9397 files/sec)
+  Indexed 23700/40783 files (9397 files/sec)
+  Indexed 23800/40783 files (9396 files/sec)
+  Indexed 23900/40783 files (9397 files/sec)
+  Indexed 24000/40783 files (9397 files/sec)
+  Indexed 24100/40783 files (9394 files/sec)
+  Indexed 24200/40783 files (9396 files/sec)
+  Indexed 24300/40783 files (9399 files/sec)
+  Indexed 24400/40783 files (9395 files/sec)
+  Indexed 24500/40783 files (9396 files/sec)
+  Indexed 24600/40783 files (9398 files/sec)
+  Indexed 24700/40783 files (9398 files/sec)
+  Indexed 24800/40783 files (9397 files/sec)
+  Indexed 24900/40783 files (9398 files/sec)
+  Indexed 25000/40783 files (9396 files/sec)
+  Indexed 25100/40783 files (9392 files/sec)
+  Indexed 25200/40783 files (9384 files/sec)
+  Indexed 25300/40783 files (9384 files/sec)
+  Indexed 25400/40783 files (9374 files/sec)
+  Indexed 25500/40783 files (9375 files/sec)
+  Indexed 25600/40783 files (9370 files/sec)
+  Indexed 25700/40783 files (9357 files/sec)
+  Indexed 25800/40783 files (9354 files/sec)
+  Indexed 25900/40783 files (9356 files/sec)
+  Indexed 26000/40783 files (9352 files/sec)
+  Indexed 26100/40783 files (9349 files/sec)
+  Indexed 26200/40783 files (9350 files/sec)
+  Indexed 26300/40783 files (9345 files/sec)
+  Indexed 26400/40783 files (9346 files/sec)
+  Indexed 26500/40783 files (9348 files/sec)
+  Indexed 26600/40783 files (9349 files/sec)
+  Indexed 26700/40783 files (9348 files/sec)
+  Indexed 26800/40783 files (9348 files/sec)
+  Indexed 26900/40783 files (9351 files/sec)
+  Indexed 27000/40783 files (9351 files/sec)
+  Indexed 27100/40783 files (9349 files/sec)
+  Indexed 27200/40783 files (9349 files/sec)
+  Indexed 27300/40783 files (9350 files/sec)
+  Indexed 27400/40783 files (9346 files/sec)
+  Indexed 27500/40783 files (9346 files/sec)
+  Indexed 27600/40783 files (9348 files/sec)
+  Indexed 27700/40783 files (9348 files/sec)
+  Indexed 27800/40783 files (9347 files/sec)
+  Indexed 27900/40783 files (9339 files/sec)
+  Indexed 28000/40783 files (9330 files/sec)
+  Indexed 28100/40783 files (9329 files/sec)
+  Indexed 28200/40783 files (9328 files/sec)
+  Indexed 28300/40783 files (9330 files/sec)
+  Indexed 28400/40783 files (9328 files/sec)
+  Indexed 28500/40783 files (9330 files/sec)
+  Indexed 28600/40783 files (9328 files/sec)
+  Indexed 28700/40783 files (9330 files/sec)
+  Indexed 28800/40783 files (9329 files/sec)
+  Indexed 28900/40783 files (9327 files/sec)
+  Indexed 29000/40783 files (9327 files/sec)
+  Indexed 29100/40783 files (9328 files/sec)
+  Indexed 29200/40783 files (9324 files/sec)
+  Indexed 29300/40783 files (9328 files/sec)
+  Indexed 29400/40783 files (9330 files/sec)
+  Indexed 29500/40783 files (9330 files/sec)
+  Indexed 29600/40783 files (9333 files/sec)
+  Indexed 29700/40783 files (9332 files/sec)
+  Indexed 29800/40783 files (9329 files/sec)
+  Indexed 29900/40783 files (9328 files/sec)
+  Indexed 30000/40783 files (9332 files/sec)
+  Indexed 30100/40783 files (9331 files/sec)
+  Indexed 30200/40783 files (9330 files/sec)
+  Indexed 30300/40783 files (9333 files/sec)
+  Indexed 30400/40783 files (9335 files/sec)
+  Indexed 30500/40783 files (9336 files/sec)
+  Indexed 30600/40783 files (9335 files/sec)
+  Indexed 30700/40783 files (9337 files/sec)
+  Indexed 30800/40783 files (9339 files/sec)
+  Indexed 30900/40783 files (9343 files/sec)
+  Indexed 31000/40783 files (9342 files/sec)
+  Indexed 31100/40783 files (9345 files/sec)
+  Indexed 31200/40783 files (9350 files/sec)
+  Indexed 31300/40783 files (9352 files/sec)
+  Indexed 31400/40783 files (9352 files/sec)
+  Indexed 31500/40783 files (9354 files/sec)
+  Indexed 31600/40783 files (9348 files/sec)
+  Indexed 31700/40783 files (9350 files/sec)
+  Indexed 31800/40783 files (9352 files/sec)
+  Indexed 31900/40783 files (9351 files/sec)
+  Indexed 32000/40783 files (9355 files/sec)
+  Indexed 32100/40783 files (9355 files/sec)
+  Indexed 32200/40783 files (9355 files/sec)
+  Indexed 32300/40783 files (9360 files/sec)
+  Indexed 32400/40783 files (9357 files/sec)
+  Indexed 32500/40783 files (9356 files/sec)
+  Indexed 32600/40783 files (9355 files/sec)
+  Indexed 32700/40783 files (9355 files/sec)
+  Indexed 32800/40783 files (9357 files/sec)
+  Indexed 32900/40783 files (9352 files/sec)
+  Indexed 33000/40783 files (9347 files/sec)
+  Indexed 33100/40783 files (9349 files/sec)
+  Indexed 33200/40783 files (9352 files/sec)
+  Indexed 33300/40783 files (9352 files/sec)
+  Indexed 33400/40783 files (9354 files/sec)
+  Indexed 33500/40783 files (9353 files/sec)
+  Indexed 33600/40783 files (9356 files/sec)
+  Indexed 33700/40783 files (9358 files/sec)
+  Indexed 33800/40783 files (9360 files/sec)
+  Indexed 33900/40783 files (9361 files/sec)
+  Indexed 34000/40783 files (9360 files/sec)
+  Indexed 34100/40783 files (9358 files/sec)
+  Indexed 34200/40783 files (9360 files/sec)
+  Indexed 34300/40783 files (9358 files/sec)
+  Indexed 34400/40783 files (9362 files/sec)
+  Indexed 34500/40783 files (9361 files/sec)
+  Indexed 34600/40783 files (9362 files/sec)
+  Indexed 34700/40783 files (9364 files/sec)
+  Indexed 34800/40783 files (9364 files/sec)
+  Indexed 34900/40783 files (9364 files/sec)
+  Indexed 35000/40783 files (9366 files/sec)
+  Indexed 35100/40783 files (9366 files/sec)
+  Indexed 35200/40783 files (9364 files/sec)
+  Indexed 35300/40783 files (9369 files/sec)
+  Indexed 35400/40783 files (9368 files/sec)
+  Indexed 35500/40783 files (9369 files/sec)
+  Indexed 35600/40783 files (9370 files/sec)
+  Indexed 35700/40783 files (9366 files/sec)
+  Indexed 35800/40783 files (9366 files/sec)
+  Indexed 35900/40783 files (9360 files/sec)
+  Indexed 36000/40783 files (9360 files/sec)
+  Indexed 36100/40783 files (9360 files/sec)
+  Indexed 36200/40783 files (9362 files/sec)
+  Indexed 36300/40783 files (9364 files/sec)
+  Indexed 36400/40783 files (9368 files/sec)
+  Indexed 36500/40783 files (9365 files/sec)
+  Indexed 36600/40783 files (9368 files/sec)
+  Indexed 36700/40783 files (9369 files/sec)
+  Indexed 36800/40783 files (9370 files/sec)
+  Indexed 36900/40783 files (9374 files/sec)
+  Indexed 37000/40783 files (9369 files/sec)
+  Indexed 37100/40783 files (9372 files/sec)
+  Indexed 37200/40783 files (9371 files/sec)
+  Indexed 37300/40783 files (9373 files/sec)
+  Indexed 37400/40783 files (9374 files/sec)
+  Indexed 37500/40783 files (9377 files/sec)
+  Indexed 37600/40783 files (9374 files/sec)
+  Indexed 37700/40783 files (9371 files/sec)
+  Indexed 37800/40783 files (9368 files/sec)
+  Indexed 37900/40783 files (9367 files/sec)
+  Indexed 38000/40783 files (9364 files/sec)
+  Indexed 38100/40783 files (9364 files/sec)
+  Indexed 38200/40783 files (9361 files/sec)
+  Indexed 38300/40783 files (9357 files/sec)
+  Indexed 38400/40783 files (9354 files/sec)
+  Indexed 38500/40783 files (9342 files/sec)
+  Indexed 38600/40783 files (9341 files/sec)
+  Indexed 38700/40783 files (9340 files/sec)
+  Indexed 38800/40783 files (9336 files/sec)
+  Indexed 38900/40783 files (9333 files/sec)
+  Indexed 39000/40783 files (9333 files/sec)
+  Indexed 39100/40783 files (9329 files/sec)
+  Indexed 39200/40783 files (9328 files/sec)
+  Indexed 39300/40783 files (9326 files/sec)
+  Indexed 39400/40783 files (9325 files/sec)
+  Indexed 39500/40783 files (9322 files/sec)
+  Indexed 39600/40783 files (9320 files/sec)
+  Indexed 39700/40783 files (9316 files/sec)
+  Indexed 39800/40783 files (9316 files/sec)
+  Indexed 39900/40783 files (9313 files/sec)
+  Indexed 40000/40783 files (9309 files/sec)
+  Indexed 40100/40783 files (9309 files/sec)
+  Indexed 40200/40783 files (9301 files/sec)
+  Indexed 40300/40783 files (9296 files/sec)
+  Indexed 40400/40783 files (9294 files/sec)
+  Indexed 40500/40783 files (9291 files/sec)
+  Indexed 40600/40783 files (9290 files/sec)
+  Indexed 40700/40783 files (9290 files/sec)
+  Indexed 40783/40783 files (9287 files/sec)
+
+======================================================================
+INDEXING COMPLETE
+======================================================================
+Files indexed: 40783
+Total size indexed: 807.05 GB
+Time elapsed: 0:00:04
+
+Updated log statistics:
+  Total files in log: 40783
+  Total size in log: 807.05 GB
+  Log file: E:\Camera Footage\import_log.json
+
+You can now run imports without --index-destination and existing
+files will be automatically skipped!
+(base) PS C:\Users\4akas\Documents\Python Scripts\photoimporter> python import_media.py --source "D:\" --dest "E:\Camera Footage"
+
+======================================================================
+MEDIA IMPORT
+======================================================================
+Source:      D:\
+Destination: E:\Camera Footage
+Dry run:     False
+======================================================================
+
+Scanning source folder: D:\
+------------------------------------------------------------
+Found 462 media files
+
+Analyzing 462 files...
+----------------------------------------------------------------------
+
+Files to import: 18
+Files skipped (already imported): 444
+Total size: 1.72 GB
+Total size: 1.72 GB
+
+Destination disk space:
+  Total: 931.50 GB
+  Used:  892.96 GB
+  Free:  38.54 GB
+
+======================================================================
+IMPORTING FILES
+======================================================================
+[1/18] P1303291.JPG
+[2/18] P1303254.MOV
+  -> 11-18-2025/P1303254.MOV
+  Progress: 2.6% | Speed: 21.06 MB/s (168.51 Mbps) | ETA: 0:01:21
+[3/18] P1303255.MOV
+[4/18] P1303256.MOV
+  -> 11-18-2025/P1303256.MOV
+  Progress: 35.8% | Speed: 17.19 MB/s (137.51 Mbps) | ETA: 0:01:05
+[5/18] P1303257.MOV
+  -> 11-18-2025/P1303257.MOV
+  Progress: 59.2% | Speed: 17.08 MB/s (136.60 Mbps) | ETA: 0:00:42
+[6/18] P1303291.RW2
+  -> 11-19-2025/P1303291.RW2
+  Progress: 61.1% | Speed: 17.06 MB/s (136.45 Mbps) | ETA: 0:00:40
+[7/18] P1303292.JPG
+[8/18] P1303292.RW2
+  -> 11-19-2025/P1303292.RW2
+  Progress: 63.6% | Speed: 17.04 MB/s (136.31 Mbps) | ETA: 0:00:37
+[9/18] P1303293.JPG
+[10/18] P1303293.RW2
+  -> 11-19-2025/P1303293.RW2
+  Progress: 65.6% | Speed: 17.02 MB/s (136.14 Mbps) | ETA: 0:00:35
+[11/18] P1303294.JPG
+[12/18] P1303294.RW2
+  -> 11-19-2025/P1303294.RW2
+  Progress: 67.6% | Speed: 17.01 MB/s (136.10 Mbps) | ETA: 0:00:33
+[13/18] P1303295.JPG
+[14/18] P1303295.RW2
+  -> 11-19-2025/P1303295.RW2
+  Progress: 69.7% | Speed: 16.99 MB/s (135.95 Mbps) | ETA: 0:00:31
+[15/18] P1303296.MOV
+  -> 11-19-2025/P1303296.MOV
+  Progress: 81.1% | Speed: 16.99 MB/s (135.89 Mbps) | ETA: 0:00:19
+[16/18] P1303297.MOV
+  -> 11-19-2025/P1303297.MOV
+  Progress: 97.7% | Speed: 16.91 MB/s (135.30 Mbps) | ETA: 0:00:02
+[17/18] DSC05305.JPG
+[18/18] DSC05305.ARW
+  -> 11-19-2025/DSC05305.ARW
+  Progress: 100.0% | Speed: 16.91 MB/s (135.31 Mbps) | ETA: 0:00:00
+
+----------------------------------------------------------------------
+Transfer completed in 0:01:44
+Average speed: 16.91 MB/s (135.31 Mbps)
+----------------------------------------------------------------------
+
+======================================================================
+IMPORT COMPLETE
+======================================================================
+Files imported: 18
+Files skipped: 444
+Total size imported: 1.72 GB
+
+Overall library statistics:
+  Total files: 40801
+  Total size: 808.77 GB
+  Log file: E:\Camera Footage\import_log.json
+(base) PS C:\Users\4akas\Documents\Python Scripts\photoimporter> 
