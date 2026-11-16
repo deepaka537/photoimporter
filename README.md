@@ -323,5 +323,81 @@ For issues or questions:
 2. Verify Python and Pillow are installed correctly
 3. Try with `--dry-run` to preview behavior
 4. Check the import log for details on skipped files
-#   p h o t o i m p o r t e r  
- 
+
+---
+
+## Analyzer & Web GUI
+
+The `analyzer/` subfolder adds face recognition, burst detection, and a local web browser GUI on top of your imported library.
+
+### Install Analyzer Requirements
+
+```bash
+pip install -r analyzer/requirements.txt
+```
+
+### Step-by-Step: Face Recognition
+
+```bash
+# Step 1 -- detect faces and burst groups in newly imported photos
+python analyzer/analyze.py --dest "D:\Camera Footage" --faces --bursts
+
+# Step 2 -- cluster detected faces into people
+python analyzer/analyze.py --dest "D:\Camera Footage" --cluster
+
+# Step 3 -- interactively name each person cluster (or rename in the web GUI)
+python analyzer/analyze.py --dest "D:\Camera Footage" --label
+```
+
+Re-run Step 1 after every import. Steps 2-3 only need re-running when you want to update clusters.
+
+### Burst Detection Only
+
+```bash
+python analyzer/analyze.py --dest "D:\Camera Footage" --bursts
+```
+
+### Browse Your Library (Web GUI)
+
+```bash
+python analyzer/server.py --dest "D:\Camera Footage"
+```
+
+Opens http://localhost:5000 automatically. Three views:
+
+- **Timeline** -- photos by date folder; filter by type (JPEG / RAW) and sort by date taken
+- **People** -- face clusters; double-click a name to rename inline
+- **Bursts** -- burst groups with sharpness scores and BEST badge on the sharpest shot
+
+Use `--port 5001` if port 5000 is already taken.
+
+### Other Useful Analyzer Commands
+
+```bash
+# List all named people
+python analyzer/analyze.py --dest "D:\Camera Footage" --people
+
+# Find all photos of a named person
+python analyzer/analyze.py --dest "D:\Camera Footage" --find "Alice"
+
+# Find photos matching a reference face image
+python analyzer/analyze.py --dest "D:\Camera Footage" --find-similar "C:\ref.jpg"
+
+# Show database statistics
+python analyzer/analyze.py --dest "D:\Camera Footage" --stats
+
+# Export burst groups to review subfolders (hardlinks -- no extra disk space)
+python analyzer/analyze.py --dest "D:\Camera Footage" --export-bursts "D:\burst_review"
+
+# Generate a standalone HTML burst gallery
+python analyzer/analyze.py --dest "D:\Camera Footage" --burst-html "D:\burst_review.html"
+```
+
+### Analyzer Data Files
+
+All analyzer data lives in your library root alongside `import_log.json`. No photos are ever modified.
+
+| File | Contents |
+|---|---|
+| `photo_analysis.db` | SQLite: face embeddings, people clusters, burst groups |
+| `.thumbnails\` | JPEG thumbnail cache (safe to delete to free disk space) |

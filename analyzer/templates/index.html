@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photo Library</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <span class="app-logo">PL</span>
+    <nav class="app-nav">
+      <a href="#timeline" class="nav-link" data-view="timeline">Timeline</a>
+      <a href="#people"   class="nav-link" data-view="people">People</a>
+    </nav>
+    <div class="precache-wrap">
+      <div class="precache-bar" id="precacheBar">
+        <div class="precache-fill" id="precacheFill"></div>
+      </div>
+    </div>
+    <div class="stats-chip" id="statsChip"></div>
+  </header>
+
+  <main class="app-main" id="appMain">
+    <div class="loading-msg">Loading…</div>
+  </main>
+
+  <!-- Full-screen viewer -->
+  <dialog class="viewer-dialog" id="viewerDialog">
+    <div class="viewer-inner">
+      <button class="viewer-btn viewer-close" id="viewerClose" aria-label="Close">&times;</button>
+      <button class="viewer-btn viewer-prev"  id="viewerPrev"  aria-label="Previous">&#8249;</button>
+      <button class="viewer-btn viewer-next"  id="viewerNext"  aria-label="Next">&#8250;</button>
+
+      <div class="viewer-img-wrap">
+        <div class="viewer-spinner" id="viewerSpinner"></div>
+        <img class="viewer-img" id="viewerImg" src="" alt="">
+      </div>
+
+      <aside class="viewer-sidebar">
+        <h3 class="viewer-filename" id="viewerFilename"></h3>
+        <dl class="viewer-meta" id="viewerMeta"></dl>
+        <button class="open-explorer-btn" id="viewerOpenExplorer" title="Open file location in Explorer">
+          &#128193; Show in Explorer
+        </button>
+      </aside>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

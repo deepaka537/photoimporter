@@ -237,6 +237,20 @@ def get_photos_for_person(dest_root: Path, person_id: int) -> List[str]:
     return [r['file_path'] for r in rows]
 
 
+def merge_people(dest_root: Path, keep_id: int, merge_ids: List[int]):
+    """
+    Merge several person clusters into one.
+    All faces from merge_ids are reassigned to keep_id; merged rows are deleted.
+    """
+    with connect(dest_root) as conn:
+        for mid in merge_ids:
+            conn.execute(
+                "UPDATE faces SET person_id = ? WHERE person_id = ?",
+                (keep_id, mid)
+            )
+            conn.execute("DELETE FROM people WHERE id = ?", (mid,))
+
+
 def get_faces_for_person(dest_root: Path, person_id: int) -> List[np.ndarray]:
     """Return all embeddings for a person (used for similarity search)."""
     with connect(dest_root) as conn:

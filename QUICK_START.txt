@@ -97,3 +97,43 @@ See README.md for complete documentation, troubleshooting, and examples.
 
 
 ================================================================================
+
+
+🔬 ANALYZER & WEB GUI (Face recognition, burst detection, browser viewer)
+================================================================================
+
+INSTALL REQUIREMENTS (once):
+  pip install -r analyzer/requirements.txt
+
+--- FACE RECOGNITION WORKFLOW ---
+
+  Step 1 — detect faces + burst groups (run after every import):
+    python analyzer/analyze.py --dest "D:\Camera Footage" --faces --bursts
+
+  Step 2 — cluster faces into people:
+    python analyzer/analyze.py --dest "D:\Camera Footage" --cluster
+
+  Step 3 — name the people (or rename them in the web GUI):
+    python analyzer/analyze.py --dest "D:\Camera Footage" --label
+
+--- BURST DETECTION ONLY ---
+
+  python analyzer/analyze.py --dest "D:\Camera Footage" --bursts
+
+--- BROWSE IN WEB BROWSER ---
+
+  python analyzer/server.py --dest "D:\Camera Footage"
+  (opens http://localhost:5000 automatically)
+
+--- OTHER COMMANDS ---
+
+  # Show stats
+  python analyzer/analyze.py --dest "D:\Camera Footage" --stats
+
+  # Find all photos of a named person
+  python analyzer/analyze.py --dest "D:\Camera Footage" --find "Alice"
+
+  # Export burst groups (hardlinks, no extra disk space)
+  python analyzer/analyze.py --dest "D:\Camera Footage" --export-bursts "D:\burst_review"
+
+================================================================================

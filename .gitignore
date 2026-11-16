@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Library data lives on the photo drive, never in the repo
+import_log.json
+*.db
+.thumbnails/

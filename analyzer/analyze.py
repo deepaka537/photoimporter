@@ -52,6 +52,7 @@ Usage
 
 import os
 import sys
+import time
 import argparse
 from datetime import datetime
 from pathlib import Path
@@ -183,16 +184,20 @@ def cmd_process(dest_root: Path, do_faces: bool, do_bursts: bool):
     all_files = _scan_library(dest_root)
     print(f"Found {len(all_files)} photo files")
 
-    # Register every photo in the DB
-    print("Registering new photos in database...")
-    new_count = 0
-    for fp in all_files:
-        ts = _get_capture_ts(fp)
-        before_count = None  # track new inserts
-        db.upsert_photo(dest_root, str(fp), ts)
-        new_count += 1  # upsert_photo is INSERT OR IGNORE, so not exact but fast
+    # Only register photos not already in the DB
+    with db.connect(dest_root) as conn:
+        existing = set(r['file_path'] for r in conn.execute("SELECT file_path FROM photos").fetchall())
 
-    print(f"Database up to date.")
+    new_files = [fp for fp in all_files if str(fp) not in existing]
+
+    if new_files:
+        print(f"Registering {len(new_files)} new photos in database...")
+        for fp in new_files:
+            ts = _get_capture_ts(fp)
+            db.upsert_photo(dest_root, str(fp), ts)
+        print(f"Registered {len(new_files)} new photos.")
+    else:
+        print(f"All {len(all_files)} photos already in database.")
 
     # ---- Burst detection ----
     if do_bursts:
@@ -212,50 +217,181 @@ def cmd_process(dest_root: Path, do_faces: bool, do_bursts: bool):
         engine = FaceEngine()
 
         unprocessed = db.get_unprocessed_photos(dest_root)
+
+        # If a RAW and its companion JPEG are both unprocessed, skip the JPEG —
+        # the RAW will be processed using the JPEG as source, covering both.
+        # Case-insensitive lookup because Windows FS is case-insensitive but DB
+        # stores paths with original casing (e.g. .JPG vs .jpg).
+        unprocessed_lower = {p.lower(): p for p in unprocessed}
+        companion_jpegs = set()
+        for file_path in unprocessed:
+            fp = Path(file_path)
+            if fp.suffix.lower() in RAW_EXTENSIONS:
+                companion = _jpeg_companion(fp)
+                if companion:
+                    actual = unprocessed_lower.get(str(companion).lower())
+                    if actual:
+                        companion_jpegs.add(actual)
+        if companion_jpegs:
+            print(f"  Skipping {len(companion_jpegs)} companion JPEGs (covered by paired RAW)")
+            with db.connect(dest_root) as conn:
+                for path in companion_jpegs:
+                    conn.execute("UPDATE photos SET faces_done = 1 WHERE file_path = ?", (path,))
+            unprocessed = [fp for fp in unprocessed if fp not in companion_jpegs]
+
         print(f"{len(unprocessed)} photos need face processing")
 
         if not unprocessed:
             print("Nothing to do.")
         else:
-            done = 0
-            skipped = 0
+            from concurrent.futures import ThreadPoolExecutor
+
+            # Tune these for your hardware:
+            #   BATCH_SIZE  images per GPU forward pass (higher = better GPU util, more VRAM)
+            #   N_LOADERS   CPU threads for parallel disk/decode (hides I/O latency)
+            #   PREFETCH    images to pre-load per chunk (bounds peak RAM; 32 × ~30 MB ≈ 1 GB)
+            BATCH_SIZE = 16   # bumped: GPU has plenty of headroom (0.1/6 GB seen)
+            N_LOADERS  = 8    # bumped: ARW rawpy decode is CPU-intensive
+            PREFETCH   = 64   # bumped: keep pipeline full
+
+            done        = 0
             total_faces = 0
+            total       = len(unprocessed)
+            start_time  = time.time()
 
-            for i, file_path in enumerate(unprocessed, 1):
+            def _eta_str(seconds):
+                if seconds >= 7200:
+                    return f"{int(seconds // 3600)}h {int((seconds % 3600) // 60)}m"
+                if seconds >= 120:
+                    return f"{int(seconds // 60)}m {int(seconds % 60)}s"
+                return f"{int(seconds)}s"
+
+            def _gpu_mem():
+                try:
+                    import torch
+                    if torch.cuda.is_available():
+                        used = torch.cuda.memory_allocated(0) / 1024 ** 3
+                        total_vram = torch.cuda.get_device_properties(0).total_memory / 1024 ** 3
+                        return f"  VRAM {used:.1f}/{total_vram:.0f}GB"
+                except Exception:
+                    pass
+                return ""
+
+            def _load_one(file_path):
+                """Load + resize one image (thread-safe; uses JPEG companion for RAW)."""
                 fp = Path(file_path)
+                src = _jpeg_companion(fp) or fp
+                img = engine.load_image(src)
+                if img is not None:
+                    img = engine._resize(img)
+                return file_path, fp, img
 
-                # For RAW files, prefer the JPEG companion if available
-                process_path = fp
-                companion = _jpeg_companion(fp)
-                if companion:
-                    process_path = companion
+            batch_paths: List[str]       = []
+            batch_fps:   List[Path]      = []
+            batch_imgs:  List           = []
 
-                embeddings, bboxes, confidences = engine.process(process_path)
-                db.save_faces(dest_root, file_path, embeddings, bboxes, confidences)
+            def _flush_batch():
+                nonlocal done, total_faces
+                if not batch_imgs:
+                    return
+                results = engine.process_batch_loaded(batch_fps, batch_imgs)
+                for bp, (embs, bboxes, confs) in zip(batch_paths, results):
+                    db.save_faces(dest_root, bp, embs, bboxes, confs)
+                    total_faces += len(embs)
+                    done += 1
 
-                total_faces += len(embeddings)
-                done += 1
+            pos = 0  # images iterated (for progress %; done lags behind in batches)
+            last_name = ''
 
-                if i % 50 == 0 or i == len(unprocessed):
-                    pct = i / len(unprocessed) * 100
-                    print(f"  [{i}/{len(unprocessed)}] {pct:.0f}%  "
-                          f"— {total_faces} faces found so far")
+            with ThreadPoolExecutor(max_workers=N_LOADERS) as pool:
+                # Process in PREFETCH-sized chunks so at most PREFETCH decoded images
+                # are held in RAM simultaneously (instead of submitting all 34k at once).
+                for chunk_start in range(0, total, PREFETCH):
+                    chunk = unprocessed[chunk_start:chunk_start + PREFETCH]
+                    for file_path, fp, img in pool.map(_load_one, chunk):
+                        pos += 1
+                        last_name = fp.name
 
-            print(f"\nDone. Processed {done} photos, found {total_faces} faces total.")
+                        if img is not None:
+                            batch_paths.append(file_path)
+                            batch_fps.append(fp)
+                            batch_imgs.append(img)
+                        else:
+                            # Load failed — mark processed with no faces
+                            db.save_faces(dest_root, file_path, [], [], [])
+                            done += 1
+
+                        if len(batch_imgs) >= BATCH_SIZE:
+                            _flush_batch()
+                            batch_paths.clear()
+                            batch_fps.clear()
+                            batch_imgs.clear()
+
+                        # Progress line
+                        elapsed = time.time() - start_time
+                        speed   = pos / elapsed if elapsed > 0 else 0
+                        eta_sec = (total - pos) / speed if speed > 0 else 0
+                        pct     = pos / total * 100
+                        line = (
+                            f"  [{pos}/{total}] {pct:.1f}%"
+                            f"  {speed:.1f} img/s"
+                            f"  ETA {_eta_str(eta_sec)}"
+                            f"  {total_faces} faces"
+                            f"{_gpu_mem()}"
+                            f"  {last_name}"
+                        )
+                        if len(line) > 119:
+                            line = line[:116] + "..."
+                        print(f"\r{line:<119}", end='', flush=True)
+
+                        if pos % 500 == 0:
+                            print()
+
+                # Flush any remaining images that didn't fill a full batch
+                _flush_batch()
+
+            elapsed_total = time.time() - start_time
+            avg_speed = done / elapsed_total if elapsed_total > 0 else 0
+            print(f"\n\nDone. {done} photos in {_eta_str(elapsed_total)}"
+                  f"  ({avg_speed:.1f} img/s avg)  —  {total_faces} faces found.")
             print("Run --cluster next to group faces into people.")
 
 
-def cmd_cluster(dest_root: Path):
+def cmd_cluster(dest_root: Path, eps: float = 0.3, min_samples: int = 2, use_hdbscan: bool = False):
     """
-    Load all face embeddings and run DBSCAN to group them into people.
+    Load all face embeddings and cluster them into people.
     Safe to re-run — existing cluster assignments are overwritten.
+
+    eps        — cosine-distance threshold (DBSCAN only). Lower = stricter.
+                 0.25 is tight (fewer false merges, more noise).
+                 0.30 is a good default.  0.40 is too loose for most libraries.
+    min_samples — minimum faces to form a cluster (noise otherwise).
+    use_hdbscan — use HDBSCAN instead of DBSCAN (more robust, no chaining).
     """
     try:
-        from sklearn.cluster import DBSCAN
         import numpy as np
     except ImportError:
-        print("ERROR: scikit-learn not installed.  Run: pip install scikit-learn")
+        print("ERROR: numpy not installed.")
         sys.exit(1)
+
+    if use_hdbscan:
+        try:
+            import hdbscan as hdbscan_mod
+            _hdbscan = hdbscan_mod.HDBSCAN
+            _backend = 'hdbscan'
+        except ImportError:
+            try:
+                from sklearn.cluster import HDBSCAN as _hdbscan
+                _backend = 'sklearn-hdbscan'
+            except ImportError:
+                print("ERROR: hdbscan not installed.  Run: pip install hdbscan")
+                sys.exit(1)
+    else:
+        try:
+            from sklearn.cluster import DBSCAN as _dbscan
+        except ImportError:
+            print("ERROR: scikit-learn not installed.  Run: pip install scikit-learn")
+            sys.exit(1)
 
     print("\n=== CLUSTERING FACES ===")
     embeddings, face_ids = db.load_all_embeddings(dest_root)
@@ -270,16 +406,28 @@ def cmd_cluster(dest_root: Path):
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8
     normed = embeddings / norms
 
-    # DBSCAN with cosine metric
-    # eps=0.4 ≈ cosine distance threshold; min_samples=2 means at least 2 faces per person
-    clustering = DBSCAN(
-        eps=0.4,
-        min_samples=2,
-        metric='cosine',
-        n_jobs=-1,
-    ).fit(normed)
+    if use_hdbscan:
+        # HDBSCAN: no chaining problem, handles variable-density clusters better.
+        # min_cluster_size ≈ min_samples; metric='euclidean' on L2-normed vectors
+        # is equivalent to cosine distance (euclidean² = 2 - 2·cosine_similarity).
+        print(f"  Algorithm : HDBSCAN  (min_cluster_size={min_samples}, {_backend})")
+        clustering = _hdbscan(
+            min_cluster_size=min_samples,
+            min_samples=1,
+            metric='euclidean',
+            cluster_selection_method='eom',
+        ).fit(normed)
+        labels = clustering.labels_.tolist()
+    else:
+        print(f"  Algorithm : DBSCAN  (eps={eps}, min_samples={min_samples}, metric=cosine)")
+        clustering = _dbscan(
+            eps=eps,
+            min_samples=min_samples,
+            metric='cosine',
+            n_jobs=-1,
+        ).fit(normed)
+        labels = clustering.labels_.tolist()
 
-    labels = clustering.labels_.tolist()
     n_clusters = len(set(l for l in labels if l >= 0))
     n_noise    = labels.count(-1)
 
@@ -288,6 +436,10 @@ def cmd_cluster(dest_root: Path):
     db.save_clusters(dest_root, face_ids, labels)
 
     print("\nRun --label to assign names, or --people to see the list.")
+    if n_clusters < 10 and not use_hdbscan:
+        print(f"\nTip: got very few clusters — try a lower eps (e.g. --eps {eps - 0.05:.2f})")
+    elif n_noise > len(embeddings) * 0.5 and not use_hdbscan:
+        print(f"\nTip: >50% of faces discarded as noise — try a higher eps (e.g. --eps {eps + 0.05:.2f})")
 
 
 def cmd_label(dest_root: Path):
@@ -693,6 +845,12 @@ Examples:
     parser.add_argument('--faces',        action='store_true', help='Detect and encode faces')
     parser.add_argument('--bursts',       action='store_true', help='Detect burst shot groups')
     parser.add_argument('--cluster',      action='store_true', help='Cluster faces into people')
+    parser.add_argument('--eps',          type=float, default=0.3,
+                        help='DBSCAN cosine-distance threshold (default 0.3; lower = stricter)')
+    parser.add_argument('--min-samples',  type=int,   default=2,
+                        help='Min faces to form a cluster, noise otherwise (default 2)')
+    parser.add_argument('--hdbscan',      action='store_true',
+                        help='Use HDBSCAN instead of DBSCAN (more robust, no chaining)')
     parser.add_argument('--label',        action='store_true', help='Interactively label people')
     parser.add_argument('--people',       action='store_true', help='List all known people')
     parser.add_argument('--find',         metavar='NAME',      help='Find photos of a named person')
@@ -721,7 +879,7 @@ Examples:
         ran_something = True
 
     if args.cluster:
-        cmd_cluster(dest_root)
+        cmd_cluster(dest_root, eps=args.eps, min_samples=args.min_samples, use_hdbscan=args.hdbscan)
         ran_something = True
 
     if args.label:

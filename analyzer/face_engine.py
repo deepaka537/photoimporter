@@ -185,6 +185,104 @@ class FaceEngine:
             [float(probs[i]) if probs[i] is not None else 0.0 for i in range(n)],
         )
 
+    def process_batch_loaded(
+        self,
+        filepaths: List[Path],
+        imgs: List[Image.Image],
+    ) -> List[Tuple[
+        List[np.ndarray],
+        List[Tuple[float, float, float, float]],
+        List[float],
+    ]]:
+        """
+        Detect and encode faces in a batch of pre-loaded, pre-resized images.
+        Returns a list parallel to imgs: (embeddings, bboxes, confidences) per image.
+        Runs a single MTCNN pass and a single ResNet pass for the whole batch,
+        keeping the GPU busy instead of idling between single-image calls.
+        """
+        n = len(imgs)
+        results: List = [([], [], []) for _ in range(n)]
+        if n == 0:
+            return results
+
+        # --- Batch detection pass (finds bounding boxes only) ---
+        try:
+            boxes_batch, probs_batch = self.mtcnn.detect(imgs)
+        except Exception:
+            return results
+
+        if boxes_batch is None:
+            return results
+
+        # facenet-pytorch returns ndarray-of-objects for batch input; normalise to list
+        if not isinstance(boxes_batch, (list, tuple)):
+            boxes_batch = list(boxes_batch)
+            probs_batch = list(probs_batch)
+
+        # Filter to only the images that actually contain faces.
+        # This avoids running the expensive alignment pass on landscape shots etc.
+        face_img_indices = [
+            i for i, b in enumerate(boxes_batch)
+            if b is not None and len(b) > 0
+        ]
+        if not face_img_indices:
+            return results  # nothing to encode — skip alignment + ResNet entirely
+
+        imgs_with_faces = [imgs[i] for i in face_img_indices]
+
+        # --- Alignment pass (crops + warps detected faces) — faces-only subset ---
+        try:
+            faces_subset = self.mtcnn(imgs_with_faces)
+        except Exception:
+            return results
+
+        if faces_subset is None:
+            return results
+
+        if not isinstance(faces_subset, list):
+            faces_subset = [faces_subset]
+
+        # Collect all face tensors; index_map maps tensor slot → (original img_idx, face_idx)
+        all_tensors = []
+        index_map: List[Tuple[int, int]] = []
+
+        for local_idx, face_tensors in enumerate(faces_subset):
+            if face_tensors is None:
+                continue
+            orig_idx = face_img_indices[local_idx]
+            if face_tensors.dim() == 3:
+                face_tensors = face_tensors.unsqueeze(0)
+            for fi in range(face_tensors.shape[0]):
+                all_tensors.append(face_tensors[fi])
+                index_map.append((orig_idx, fi))
+
+        if not all_tensors:
+            return results
+
+        # --- Single ResNet forward pass for ALL faces in the batch (FP16 on CUDA) ---
+        try:
+            batch_t = torch.stack(all_tensors).to(self.device)
+            with torch.no_grad():
+                if self.device.type == 'cuda':
+                    with torch.autocast('cuda', dtype=torch.float16):
+                        all_embs = self.resnet(batch_t).float().cpu().numpy()
+                else:
+                    all_embs = self.resnet(batch_t).cpu().numpy()
+        except Exception:
+            return results
+
+        # Distribute embeddings back to per-image result tuples
+        for k, (img_idx, fi) in enumerate(index_map):
+            boxes = boxes_batch[img_idx]
+            probs = probs_batch[img_idx]
+            if boxes is None or fi >= len(boxes):
+                continue
+            results[img_idx][0].append(all_embs[k])
+            results[img_idx][1].append(tuple(float(v) for v in boxes[fi]))
+            results[img_idx][2].append(float(probs[fi]) if probs[fi] is not None else 0.0)
+
+        return results
+
     def encode_single(self, img: Image.Image) -> Optional[np.ndarray]:
         """
         Encode the largest (or only) face in a PIL Image.
