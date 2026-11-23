@@ -12,9 +12,10 @@ echo ======================================================================
 echo.
 
 python "%~dp0run_importer.py"
+set RC=%ERRORLEVEL%
 
 echo.
 echo ======================================================================
-echo Import complete! Press any key to close this window.
+if "%RC%"=="0" (echo Import complete! Press any key to close this window.) else (echo Import FAILED with error code %RC% - see messages above. Press any key to close.)
 echo ======================================================================
 pause > nul

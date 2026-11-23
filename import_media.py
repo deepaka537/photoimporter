@@ -22,6 +22,7 @@ import shutil
 import json
 import hashlib
 import time
+import re
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, List, Dict
@@ -59,6 +60,12 @@ ALL_MEDIA_EXTENSIONS = PHOTO_EXTENSIONS | VIDEO_EXTENSIONS
 # Log file name (stored in destination root)
 LOG_FILE_NAME = 'import_log.json'
 
+# Temporary progress journal, kept next to this script (on the main drive) so it
+# survives the destination drive crashing/disconnecting mid-import. It is
+# appended to after every file and deleted only when an import finishes cleanly.
+PROGRESS_LOG_DIR = Path(__file__).resolve().parent
+PROGRESS_LOG_PREFIX = 'import_in_progress_'
+
 # Date format for folder names (M-D-YYYY without leading zeros)
 # Example: 1-12-2025, 11-14-2025
 DATE_FOLDER_FORMAT = 'custom'  # Will use custom formatting function
@@ -92,9 +99,7 @@ def get_file_hash(filepath: Path, quick: bool = True) -> str:
     """
     if quick:
         # Quick hash: just filename + size
-        stat = filepath.stat()
-        hash_str = f"{filepath.name}_{stat.st_size}"
-        return hashlib.md5(hash_str.encode()).hexdigest()
+        return quick_hash(filepath.name, filepath.stat().st_size)
     else:
         # Full file hash (slower, more accurate)
         hash_md5 = hashlib.md5()
@@ -102,6 +107,11 @@ def get_file_hash(filepath: Path, quick: bool = True) -> str:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
+
+
+def quick_hash(filename: str, size: int) -> str:
+    """Quick hash from filename + size (no file access needed)."""
+    return hashlib.md5(f"{filename}_{size}".encode()).hexdigest()
 
 
 def get_exif_date(filepath: Path) -> Optional[datetime]:
@@ -241,16 +251,24 @@ class ImportLog:
             'files': {}  # hash -> file info
         }
 
-    def save(self):
-        """Save the log file to disk."""
+    def save(self) -> bool:
+        """Save the log file to disk. Returns True on success."""
         try:
             # Ensure destination directory exists
             self.dest_root.mkdir(parents=True, exist_ok=True)
 
-            with open(self.log_path, 'w', encoding='utf-8') as f:
+            # Write to a temp file then swap in, so a crash mid-write
+            # can't leave a truncated/corrupt log behind
+            tmp_path = self.log_path.with_suffix('.json.tmp')
+            with open(tmp_path, 'w', encoding='utf-8') as f:
                 json.dump(self.data, f, indent=2, ensure_ascii=False)
-        except IOError as e:
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, self.log_path)
+            return True
+        except OSError as e:
             print(f"Error: Could not save log file: {e}")
+            return False
 
     def is_imported(self, filepath: Path) -> bool:
         """Check if a file has already been imported."""
@@ -259,11 +277,18 @@ class ImportLog:
 
     def add_file(self, filepath: Path, dest_path: Path, file_size: int):
         """Add a file to the import log."""
-        file_hash = get_file_hash(filepath)
+        self.add_entry(quick_hash(filepath.name, file_size), filepath.name,
+                       str(filepath), dest_path, file_size)
+
+    def add_entry(self, file_hash: str, filename: str, original_path: str,
+                  dest_path: Path, file_size: int):
+        """Add a log entry without needing the source file to be accessible."""
+        if file_hash in self.data['files']:
+            return
 
         self.data['files'][file_hash] = {
-            'filename': filepath.name,
-            'original_path': str(filepath),
+            'filename': filename,
+            'original_path': original_path,
             'dest_path': str(dest_path),
             'size': file_size,
             'import_date': datetime.now().isoformat()
@@ -289,6 +314,123 @@ class ImportLog:
             'total_size': self.data['total_bytes_imported'],
             'total_size_formatted': format_bytes(self.data['total_bytes_imported'])
         }
+
+
+class ImportAborted(Exception):
+    """Raised when the import can't continue (e.g. a drive disconnected)."""
+
+
+class ProgressLog:
+    """
+    Temporary per-file journal of an import in progress.
+
+    Lives in the script folder on the main drive (not the destination drive).
+    Each event is one JSON line, flushed and fsynced immediately, so if the
+    script crashes or a drive disconnects, the next run can tell exactly which
+    files were copied and merge them into import_log.json instead of
+    re-importing everything.
+
+    Paths are stored relative to the destination root so recovery still works
+    if the drive comes back with a different letter.
+    """
+
+    def __init__(self, dest_root: Path):
+        slug = re.sub(r'[^\w-]+', '_', dest_root.name).strip('_') or 'drive_root'
+        self.path = PROGRESS_LOG_DIR / f"{PROGRESS_LOG_PREFIX}{slug}.log"
+        self._fh = None
+
+    def exists(self) -> bool:
+        return self.path.exists()
+
+    # ---- writing -----------------------------------------------------------
+
+    def open(self, source_root: Path, dest_root: Path):
+        self._fh = open(self.path, 'a', encoding='utf-8')
+        self._write({'event': 'session', 'source': str(source_root),
+                     'dest': str(dest_root)})
+
+    def _write(self, record: Dict):
+        record['time'] = datetime.now().isoformat(timespec='seconds')
+        self._fh.write(json.dumps(record, ensure_ascii=False) + '\n')
+        self._fh.flush()
+        os.fsync(self._fh.fileno())
+
+    def started(self, source: Path, rel: Path, size: int):
+        self._write({'event': 'start', 'src': str(source), 'rel': str(rel), 'size': size})
+
+    def done(self, source: Path, rel: Path, size: int):
+        self._write({'event': 'done', 'src': str(source), 'rel': str(rel), 'size': size})
+
+    def failed(self, source: Path, rel: Path, error: Exception):
+        self._write({'event': 'fail', 'src': str(source), 'rel': str(rel),
+                     'error': f"{type(error).__name__}: {error}"})
+
+    def close(self, delete: bool):
+        if self._fh:
+            self._fh.close()
+            self._fh = None
+        if delete:
+            try:
+                self.path.unlink()
+            except OSError as e:
+                print(f"Warning: could not delete progress log {self.path}: {e}")
+        else:
+            print(f"\nProgress log kept for recovery: {self.path}")
+
+    # ---- recovery ----------------------------------------------------------
+
+    def recover_into(self, log: 'ImportLog', dest_root: Path) -> bool:
+        """
+        Merge files recorded by an interrupted import into the main log.
+        Returns True if the main log was saved (so this journal can be deleted).
+        """
+        print("\n" + "=" * 70)
+        print("RECOVERING INTERRUPTED IMPORT")
+        print("=" * 70)
+        print("Found progress log from a previous run that didn't finish:")
+        print(f"  {self.path}")
+
+        # Last event per destination file wins
+        last: Dict[str, Dict] = {}
+        with open(self.path, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue  # partially written last line
+                if rec.get('event') in ('start', 'done', 'fail'):
+                    last[rec['rel']] = rec
+
+        recovered = partial_removed = 0
+        for rel, rec in last.items():
+            if rec['event'] == 'fail':
+                continue
+            dest = dest_root / rel
+            size = rec.get('size')
+            src = rec['src']
+            name = Path(src).name
+            if dest.exists() and dest.stat().st_size == size:
+                # 'done', or copy finished but the 'done' line never got written
+                before = len(log.data['files'])
+                log.add_entry(quick_hash(name, size), name, src, dest, size)
+                recovered += len(log.data['files']) - before
+            elif rec['event'] == 'start' and dest.exists():
+                # Copy was cut off mid-file: remove the truncated file
+                try:
+                    dest.unlink()
+                    partial_removed += 1
+                    print(f"  Removed partial file: {rel}")
+                except OSError as e:
+                    print(f"  Warning: could not remove partial file {rel}: {e}")
+
+        print(f"  Recovered {recovered} imported files into the log")
+        if partial_removed:
+            print(f"  Removed {partial_removed} partially copied file(s); they will be re-imported")
+
+        if log.save():
+            return True
+        print("  Could not save the main log; keeping progress log for next time.")
+        return False
 
 
 # ============================================================================
@@ -363,6 +505,19 @@ class MediaImporter:
         print(f"Destination: {self.dest_root}")
         print(f"Dry run:     {self.dry_run}")
         print("=" * 70)
+
+        # Step 0: Recover from a previous import that crashed/disconnected
+        progress = ProgressLog(self.dest_root)
+        if progress.exists():
+            if not self.dest_root.exists():
+                raise ImportAborted(f"Destination not found: {self.dest_root}")
+            if self.dry_run:
+                print(f"\nNote: an interrupted import was found ({progress.path}).")
+                print("It will be recovered on the next real (non-dry-run) import.")
+            elif progress.recover_into(self.log, self.dest_root):
+                progress.close(delete=True)
+            else:
+                raise ImportAborted("Could not recover the interrupted import.")
 
         # Step 1: Scan source
         scanner = MediaScanner(self.source_root)
@@ -509,57 +664,90 @@ class MediaImporter:
         print("IMPORTING FILES")
         print("=" * 70)
 
+        progress = ProgressLog(self.dest_root)
+        progress.open(self.source_root, self.dest_root)
+        finished_cleanly = False
+
+        try:
+            self._copy_loop(files_to_copy, progress)
+
+            # Save log; only discard the progress journal if this succeeds
+            finished_cleanly = self.log.save()
+        finally:
+            # On crash, Ctrl+C, abort, or failed save the journal is kept so
+            # the next run can recover
+            progress.close(delete=finished_cleanly)
+
+    def _copy_loop(self, files_to_copy: List[Tuple[Path, Path, int]], progress: ProgressLog):
         start_time = time.time()
         last_update = start_time
 
         for i, (source, dest, size) in enumerate(files_to_copy, 1):
-            # Create destination folder if needed
-            dest.parent.mkdir(parents=True, exist_ok=True)
+            rel = dest.relative_to(self.dest_root)
+            progress.started(source, rel, size)
 
             try:
+                # Create destination folder if needed
+                dest.parent.mkdir(parents=True, exist_ok=True)
+
                 # Copy file
                 shutil.copy2(source, dest)
-
-                # Add to log
-                self.log.add_file(source, dest, size)
-                self.files_imported += 1
-                self.bytes_imported += size
-
-                # Calculate transfer statistics
-                elapsed = time.time() - start_time
-                current_time = time.time()
-
-                # Update progress every file or every 2 seconds
-                if current_time - last_update >= 2 or i == len(files_to_copy):
-                    if elapsed > 0:
-                        # Calculate speed
-                        speed_mbps = (self.bytes_imported / elapsed) / (1024 * 1024)  # MB/s
-                        speed_mbits = speed_mbps * 8  # Mbps
-
-                        # Estimate time remaining
-                        bytes_remaining = self.bytes_to_import - self.bytes_imported
-                        if bytes_remaining > 0 and self.bytes_imported > 0:
-                            seconds_remaining = bytes_remaining / (self.bytes_imported / elapsed)
-                            eta = str(timedelta(seconds=int(seconds_remaining)))
-                        else:
-                            eta = "0:00:00"
-
-                        # Progress percentage
-                        progress_pct = (self.bytes_imported / self.bytes_to_import) * 100
-
-                        print(f"[{i}/{self.files_to_import}] {source.name}")
-                        print(f"  -> {dest.parent.name}/{dest.name}")
-                        print(f"  Progress: {progress_pct:.1f}% | Speed: {speed_mbps:.2f} MB/s ({speed_mbits:.2f} Mbps) | ETA: {eta}")
-
-                        last_update = current_time
-                    else:
-                        print(f"[{i}/{self.files_to_import}] {source.name} -> {dest.parent.name}/")
-                else:
-                    # Quick update without stats
-                    print(f"[{i}/{self.files_to_import}] {source.name}")
-
             except Exception as e:
                 print(f"[{i}/{self.files_to_import}] {source.name} - ERROR: {e}")
+                progress.failed(source, rel, e)
+
+                # If a drive went away, stop instead of failing every remaining file
+                if not self.dest_root.exists():
+                    raise ImportAborted(f"Destination drive disconnected: {self.dest_root}")
+                if not self.source_root.exists():
+                    raise ImportAborted(f"Source drive disconnected: {self.source_root}")
+
+                # Don't leave a partial copy behind
+                try:
+                    if dest.exists():
+                        dest.unlink()
+                except OSError:
+                    pass
+                continue
+
+            # Add to log
+            self.log.add_file(source, dest, size)
+            progress.done(source, rel, size)
+            self.files_imported += 1
+            self.bytes_imported += size
+
+            # Calculate transfer statistics
+            elapsed = time.time() - start_time
+            current_time = time.time()
+
+            # Update progress every file or every 2 seconds
+            if current_time - last_update >= 2 or i == len(files_to_copy):
+                if elapsed > 0:
+                    # Calculate speed
+                    speed_mbps = (self.bytes_imported / elapsed) / (1024 * 1024)  # MB/s
+                    speed_mbits = speed_mbps * 8  # Mbps
+
+                    # Estimate time remaining
+                    bytes_remaining = self.bytes_to_import - self.bytes_imported
+                    if bytes_remaining > 0 and self.bytes_imported > 0:
+                        seconds_remaining = bytes_remaining / (self.bytes_imported / elapsed)
+                        eta = str(timedelta(seconds=int(seconds_remaining)))
+                    else:
+                        eta = "0:00:00"
+
+                    # Progress percentage
+                    progress_pct = (self.bytes_imported / self.bytes_to_import) * 100
+
+                    print(f"[{i}/{self.files_to_import}] {source.name}")
+                    print(f"  -> {dest.parent.name}/{dest.name}")
+                    print(f"  Progress: {progress_pct:.1f}% | Speed: {speed_mbps:.2f} MB/s ({speed_mbits:.2f} Mbps) | ETA: {eta}")
+
+                    last_update = current_time
+                else:
+                    print(f"[{i}/{self.files_to_import}] {source.name} -> {dest.parent.name}/")
+            else:
+                # Quick update without stats
+                print(f"[{i}/{self.files_to_import}] {source.name}")
 
         # Final statistics
         total_time = time.time() - start_time
@@ -570,9 +758,6 @@ class MediaImporter:
         print(f"Transfer completed in {str(timedelta(seconds=int(total_time)))}")
         print(f"Average speed: {avg_speed_mbps:.2f} MB/s ({avg_speed_mbits:.2f} Mbps)")
         print("-" * 70)
-
-        # Save log
-        self.log.save()
 
     def index_destination(self):
         """
@@ -887,7 +1072,13 @@ Examples:
 
     # Run importer
     importer = MediaImporter(source_path, dest_path, dry_run=args.dry_run)
-    importer.import_media()
+    try:
+        importer.import_media()
+    except ImportAborted as e:
+        print(f"\nIMPORT ABORTED: {e}")
+        print("Reconnect the drive and run the importer again; it will resume")
+        print("where it left off using the progress log.")
+        return 1
 
     return 0
 

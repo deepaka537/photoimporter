@@ -7,3 +7,4 @@ venv/
 import_log.json
 *.db
 .thumbnails/
+import_in_progress_*.log

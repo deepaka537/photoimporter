@@ -15,9 +15,10 @@ echo ======================================================================
 echo.
 
 python "%~dp0import_media.py" --index-destination
+set RC=%ERRORLEVEL%
 
 echo.
 echo ======================================================================
-echo Indexing complete! Press any key to close this window.
+if "%RC%"=="0" (echo Indexing complete! Press any key to close this window.) else (echo Indexing FAILED with error code %RC% - see messages above. Press any key to close.)
 echo ======================================================================
 pause > nul
